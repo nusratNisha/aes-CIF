@@ -127,7 +127,6 @@ const aesDivisions = [
   "Sylhet",
 ];
 
-// Preview choices. Confirm the permitted values with your senior developer.
 const aesRegularDoses = ["0", "1", "2", "3"];
 const aesSiaDoses = Array.from(
   { length: 10 },
@@ -138,10 +137,7 @@ const aesNavy = "#18355f";
 const aesBorder = "#cbd7e8";
 const aesRed = "#d32f2f";
 
-/*
- * ONE common style for ALL text fields and dropdowns.
- * Change fontSize or height here to update the entire form.
- */
+
 const aesFieldSx = {
   "& .MuiOutlinedInput-root": {
     height: 40,
@@ -285,6 +281,7 @@ function AesLabel({
         lineHeight: 1.3,
         marginBottom: "7px",
       }}
+
     >
       {aesText}
       {aesRequired && (
@@ -808,7 +805,7 @@ setAesErrors((aesPrevious) => {
       return;
     }
 
-    // Frontend preview only. No API request is made.
+    // Frontend preview only
     setAesPayload(aesCreatePayload());
   }
 
