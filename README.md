@@ -1,50 +1,74 @@
-# React + TypeScript + Vite
+# AES-CIF Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React and TypeScript frontend for the Acute Encephalitis Syndrome (AES) Case Investigation Form. It is designed for the Disease Selection portion of the NDSS Facility Portal’s Register Case workflow.
 
-Currently, two official plugins are available:
+This repository contains **frontend functionality only**. Backend integration, database storage, and generation of the EPID code are not implemented here.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Tech stack
 
-## Expanding the ESLint configuration
+- React and TypeScript
+- Vite
+- Material UI (MUI)
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## Getting started
 
-- Configure the top-level `parserOptions` property like this:
+Install the dependencies:
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```bash
+npm install
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+Start the development server:
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+```bash
+npm run dev
 ```
+
+Open the local URL shown in the terminal.
+
+To check the production build:
+
+```bash
+npm run build
+```
+
+## Form sections
+
+- **Disease Selection:** Displays AES and a placeholder for the EPID code. The facility user selects Tribal or Non-Tribal as the population group.
+- **AES Case Definition:** Records acute onset of fever, altered mental status, and new onset seizures. A help tooltip explains the simple febrile seizure exclusion.
+- **Signs and Symptoms:** Records fever, seizures, headaches, mental status, and neurologic motor details.
+- **Vaccination History:** Records Japanese encephalitis (JE) vaccination details when the vaccine-history toggle is on.
+- **Travel History:** Records travel within the last 14 days when the travel toggle is on.
+
+## Form behaviour and validation
+
+All three AES case-definition questions must be answered. The remaining sections open only when **acute onset of fever is Yes** and **at least one of altered mental status or new onset seizures is Yes**.
+
+Yes/No answers can be changed directly in one click. The unselected answer appears visually inactive but remains clickable.
+
+When JE vaccine history is available, Dose by Card and Dose by History are both required. Each accepts `0–9`, but they cannot both be `0`. SIA Doses accepts `1–10` and is optional. Date of Last Dose is required.
+
+When travel outside the area is selected, the travel period, place details, division, district/city corporation, and upazila/thana are required. The remaining address fields are optional.
+
+## Frontend-only submission
+
+The **Validate AES Form** button validates the entries and displays a JSON payload preview. It does **not** send data to a server or save a case. The EPID code shown on the page is a placeholder; the existing system will provide the generated value during integration.
+
+The payload structure and field names should be reviewed with the backend developer before connecting an API.
+
+## Project structure
+
+```text
+aes-CIF/
+├── public/             # Static assets
+├── src/
+│   ├── App.tsx          # AES form, state, validation, and payload preview
+│   └── main.tsx         # React entry point
+├── index.html
+├── package.json
+└── vite.config.ts
+```
+
+## Data handling
+
+This repository is a frontend prototype. Do not commit real patient information, credentials, or environment files containing secrets. Use test data when reviewing the JSON preview.
