@@ -1,5 +1,11 @@
 import { useState, type FormEvent, type ReactNode } from "react";
 
+import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
+import FlightTakeoffOutlinedIcon from "@mui/icons-material/FlightTakeoffOutlined";
+import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
+import MedicalServicesOutlinedIcon from "@mui/icons-material/MedicalServicesOutlined";
+import VaccinesOutlinedIcon from "@mui/icons-material/VaccinesOutlined";
+
 import {
   Alert,
   Box,
@@ -16,39 +22,29 @@ import {
   Typography,
 } from "@mui/material";
 
-import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
-import MedicalServicesOutlinedIcon from "@mui/icons-material/MedicalServicesOutlined";
-import VaccinesOutlinedIcon from "@mui/icons-material/VaccinesOutlined";
-import FlightTakeoffOutlinedIcon from "@mui/icons-material/FlightTakeoffOutlined";
-import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
-
 type AesYesNo = "yes" | "no" | "";
 type AesPopulationGroup = "tribal" | "non_tribal" | "";
 
 type AesForm = {
   aesPopulationGroup: AesPopulationGroup;
 
-  // Case definition
   aesAcuteOnsetFever: AesYesNo;
   aesAlteredMentalStatus: AesYesNo;
   aesNewOnsetSeizures: AesYesNo;
   aesFirstSymptomOnsetDate: string;
 
-  // Signs and symptoms
   aesFever: AesYesNo;
   aesSeizures: AesYesNo;
   aesHeadaches: AesYesNo;
   aesMentalStatus: string;
   aesNeurologicMotorDetails: string;
 
-  // Vaccination
   aesJeVaccineHistoryAvailable: boolean;
   aesDoseByCard: string;
   aesDoseByHistory: string;
   aesSiaDoses: string;
   aesDateOfLastDose: string;
 
-  // Travel
   aesTravelOutsideAreaLast14Days: boolean;
   aesTravelPeriodStart: string;
   aesTravelPeriodEnd: string;
@@ -127,8 +123,12 @@ const aesDivisions = [
   "Sylhet",
 ];
 
-const aesRegularDoses = ["0", "1", "2", "3"];
-const aesSiaDoses = Array.from(
+const aesDoseOptions = Array.from(
+  { length: 10 },
+  (_, aesIndex) => String(aesIndex),
+);
+
+const aesSiaDoseOptions = Array.from(
   { length: 10 },
   (_, aesIndex) => String(aesIndex + 1),
 );
@@ -137,17 +137,30 @@ const aesNavy = "#18355f";
 const aesBorder = "#cbd7e8";
 const aesRed = "#d32f2f";
 
+const aesLabelSx = {
+  display: "block",
+  color: aesNavy,
+  fontFamily: "inherit",
+  fontSize: "12px",
+  fontWeight: 600,
+  lineHeight: 1.4,
+  marginBottom: "7px",
+};
 
 const aesFieldSx = {
+  width: "100%",
+
   "& .MuiOutlinedInput-root": {
     height: 40,
     borderRadius: "2px",
     backgroundColor: "#fff",
+    fontFamily: "inherit",
     fontSize: "13px",
   },
 
   "& .MuiInputBase-input": {
     padding: "9px 12px",
+    fontFamily: "inherit",
     fontSize: "13px",
   },
 
@@ -156,6 +169,7 @@ const aesFieldSx = {
     alignItems: "center",
     minHeight: "0 !important",
     padding: "9px 32px 9px 12px !important",
+    fontFamily: "inherit",
     fontSize: "13px",
   },
 
@@ -273,17 +287,10 @@ function AesLabel({
     <Typography
       component={aesHtmlFor ? "label" : "div"}
       htmlFor={aesHtmlFor}
-      sx={{
-        display: "block",
-        color: aesNavy,
-        fontSize: "12px",
-        fontWeight: 700,
-        lineHeight: 1.3,
-        marginBottom: "7px",
-      }}
-
+      sx={aesLabelSx}
     >
       {aesText}
+
       {aesRequired && (
         <Box component="span" sx={{ color: aesRed, ml: 0.35 }}>
           *
@@ -302,49 +309,61 @@ function AesYesNo({
   aesError?: string;
   aesOnChange: (aesAnswer: AesYesNo) => void;
 }) {
-  const aesButtonSx = (aesAnswer: "yes" | "no") => ({
-    minWidth: 46,
-    height: 28,
-    padding: "2px 9px",
-    borderRadius: "3px",
-    border: `1px solid ${
-      aesValue === aesAnswer ? "#1769ee" : "#bbcbe1"
-    }`,
-    backgroundColor:
-      aesValue === aesAnswer ? "#eef4ff" : "#fff",
-    color: aesValue === aesAnswer ? "#1769ee" : aesNavy,
-    fontSize: "11px",
-    fontWeight: aesValue === aesAnswer ? 700 : 500,
-    textTransform: "none",
+  const aesButtonSx = (aesAnswer: "yes" | "no") => {
+    const aesSelected = aesValue === aesAnswer;
+    const aesOppositeSelected =
+      aesValue !== "" && !aesSelected;
 
-    "&.Mui-disabled": {
-      borderColor: "#d7deea",
-      color: "#a4afbf",
-      backgroundColor: "#f6f8fb",
-    },
-  });
+    return {
+      minWidth: 46,
+      height: 28,
+      padding: "2px 9px",
+      borderRadius: "3px",
+      border: `1px solid ${
+        aesSelected ? "#1769ee" : "#bbcbe1"
+      }`,
+      backgroundColor: aesSelected
+        ? "#eef4ff"
+        : aesOppositeSelected
+          ? "#f6f8fb"
+          : "#fff",
+      color: aesSelected
+        ? "#1769ee"
+        : aesOppositeSelected
+          ? "#a4afbf"
+          : aesNavy,
+      fontSize: "11px",
+      fontWeight: aesSelected ? 700 : 500,
+      textTransform: "none",
+      cursor: "pointer",
+
+      "&:hover": {
+        backgroundColor: aesSelected
+          ? "#e4eeff"
+          : "#eef4ff",
+        borderColor: "#1769ee",
+        color: "#1769ee",
+      },
+    };
+  };
 
   return (
     <Box>
       <Box sx={{ display: "flex", gap: 0.75 }}>
         <Button
           type="button"
-          disabled={aesValue === "no"}
+          aria-pressed={aesValue === "yes"}
           sx={aesButtonSx("yes")}
-          onClick={() =>
-            aesOnChange(aesValue === "yes" ? "" : "yes")
-          }
+          onClick={() => aesOnChange("yes")}
         >
           Yes
         </Button>
 
         <Button
           type="button"
-          disabled={aesValue === "yes"}
+          aria-pressed={aesValue === "no"}
           sx={aesButtonSx("no")}
-          onClick={() =>
-            aesOnChange(aesValue === "no" ? "" : "no")
-          }
+          onClick={() => aesOnChange("no")}
         >
           No
         </Button>
@@ -391,7 +410,13 @@ function AesQuestionRow({
           : `1px solid ${aesBorder}`,
       }}
     >
-      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 0.5,
+        }}
+      >
         <Typography sx={{ color: aesNavy, fontSize: "13px" }}>
           {aesText}
         </Typography>
@@ -464,28 +489,155 @@ function AesToggle({
         onChange={(aesEvent) =>
           aesOnChange(aesEvent.target.checked)
         }
-        inputProps={{ "aria-label": aesLabel }}
+        slotProps={{
+          input: { "aria-label": aesLabel },
+        }}
+              />
+    </Box>
+  );
+}
+
+function AesSelectField({
+  aesId,
+  aesLabel,
+  aesValue,
+  aesOptions,
+  aesPlaceholder,
+  aesError,
+  aesRequired = false,
+  aesOnChange,
+}: {
+  aesId: string;
+  aesLabel: string;
+  aesValue: string;
+  aesOptions: string[];
+  aesPlaceholder: string;
+  aesError?: string;
+  aesRequired?: boolean;
+  aesOnChange: (aesValue: string) => void;
+}) {
+  return (
+    <Box sx={{ minWidth: 0 }}>
+      <AesLabel
+        aesText={aesLabel}
+        aesRequired={aesRequired}
+        aesHtmlFor={aesId}
+      />
+
+      <TextField
+        id={aesId}
+        select
+        fullWidth
+        value={aesValue}
+        error={Boolean(aesError)}
+        helperText={aesError}
+        onChange={(aesEvent) =>
+          aesOnChange(aesEvent.target.value)
+        }
+        SelectProps={{
+          displayEmpty: true,
+          MenuProps: {
+            PaperProps: {
+              sx: {
+                "& .MuiMenuItem-root": {
+                  fontSize: "13px",
+                  minHeight: 36,
+                },
+              },
+            },
+          },
+        }}
+        sx={aesFieldSx}
+      >
+        <MenuItem value="" disabled>
+          {aesPlaceholder}
+        </MenuItem>
+
+        {aesOptions.map((aesOption) => (
+          <MenuItem key={aesOption} value={aesOption}>
+            {aesOption}
+          </MenuItem>
+        ))}
+      </TextField>
+    </Box>
+  );
+}
+
+function AesTextField({
+  aesId,
+  aesLabel,
+  aesValue,
+  aesOnChange,
+  aesPlaceholder,
+  aesError,
+  aesRequired = false,
+  aesType = "text",
+  aesMin,
+  aesMax,
+}: {
+  aesId: string;
+  aesLabel: string;
+  aesValue: string;
+  aesOnChange: (aesValue: string) => void;
+  aesPlaceholder?: string;
+  aesError?: string;
+  aesRequired?: boolean;
+  aesType?: "text" | "date";
+  aesMin?: string;
+  aesMax?: string;
+}) {
+  return (
+    <Box sx={{ minWidth: 0 }}>
+      <AesLabel
+        aesText={aesLabel}
+        aesRequired={aesRequired}
+        aesHtmlFor={aesId}
+      />
+
+      <TextField
+        id={aesId}
+        type={aesType}
+        fullWidth
+        value={aesValue}
+        placeholder={aesPlaceholder}
+        error={Boolean(aesError)}
+        helperText={aesError}
+        onChange={(aesEvent) =>
+          aesOnChange(aesEvent.target.value)
+        }
+      slotProps={{
+        htmlInput: {
+          min: aesMin,
+          max: aesMax,
+        },
+      }}
+        sx={aesFieldSx}
       />
     </Box>
   );
 }
 
 function App() {
-  const [aesForm, setAesForm] = useState<AesForm>(aesInitialForm);
-  const [aesErrors, setAesErrors] = useState<AesErrors>({});
-  const [aesPayload, setAesPayload] = useState<object | null>(null);
+  const [aesForm, setAesForm] =
+    useState<AesForm>(aesInitialForm);
+  const [aesErrors, setAesErrors] =
+    useState<AesErrors>({});
+  const [aesPayload, setAesPayload] =
+    useState<object | null>(null);
 
   const aesMaxDate = aesToday();
 
-  const aesMeetsCaseDefinition =
-  aesForm.aesAcuteOnsetFever === "yes" &&
-  (aesForm.aesAlteredMentalStatus === "yes" ||
-    aesForm.aesNewOnsetSeizures === "yes");
   const aesDefinitionComplete = [
     aesForm.aesAcuteOnsetFever,
     aesForm.aesAlteredMentalStatus,
     aesForm.aesNewOnsetSeizures,
   ].every((aesAnswer) => aesAnswer !== "");
+
+  const aesMeetsCaseDefinition =
+    aesDefinitionComplete &&
+    aesForm.aesAcuteOnsetFever === "yes" &&
+    (aesForm.aesAlteredMentalStatus === "yes" ||
+      aesForm.aesNewOnsetSeizures === "yes");
 
   function aesUpdate<AesKey extends AesField>(
     aesField: AesKey,
@@ -521,16 +673,14 @@ function App() {
           }),
     }));
 
-setAesErrors((aesPrevious) => {
-  const aesNext = { ...aesPrevious };
-
-  delete aesNext.aesDoseByCard;
-  delete aesNext.aesDoseByHistory;
-  delete aesNext.aesSiaDoses;
-  delete aesNext.aesDateOfLastDose;
-
-  return aesNext;
-});
+    setAesErrors((aesPrevious) => {
+      const aesNext = { ...aesPrevious };
+      delete aesNext.aesDoseByCard;
+      delete aesNext.aesDoseByHistory;
+      delete aesNext.aesSiaDoses;
+      delete aesNext.aesDateOfLastDose;
+      return aesNext;
+    });
 
     setAesPayload(null);
   }
@@ -575,28 +725,35 @@ setAesErrors((aesPrevious) => {
     const aesNext: AesErrors = {};
 
     if (!aesForm.aesPopulationGroup) {
-      aesNext.aesPopulationGroup = "Select one option.";
+      aesNext.aesPopulationGroup =
+        "Select Tribal or Non-Tribal.";
     }
 
     if (!aesForm.aesAcuteOnsetFever) {
-      aesNext.aesAcuteOnsetFever = "Select Yes or No.";
+      aesNext.aesAcuteOnsetFever =
+        "Select Yes or No.";
     }
 
     if (!aesForm.aesAlteredMentalStatus) {
-      aesNext.aesAlteredMentalStatus = "Select Yes or No.";
+      aesNext.aesAlteredMentalStatus =
+        "Select Yes or No.";
     }
 
     if (!aesForm.aesNewOnsetSeizures) {
-      aesNext.aesNewOnsetSeizures = "Select Yes or No.";
+      aesNext.aesNewOnsetSeizures =
+        "Select Yes or No.";
     }
 
-    // Date belongs to the acute-onset-of-fever question.
-    if (
-      aesForm.aesAcuteOnsetFever === "yes" &&
-      !aesForm.aesFirstSymptomOnsetDate
-    ) {
-      aesNext.aesFirstSymptomOnsetDate =
-        "Date of first symptom onset is required.";
+    if (aesForm.aesAcuteOnsetFever === "yes") {
+      if (!aesForm.aesFirstSymptomOnsetDate) {
+        aesNext.aesFirstSymptomOnsetDate =
+          "Date of first symptom onset is required.";
+      } else if (
+        aesForm.aesFirstSymptomOnsetDate > aesMaxDate
+      ) {
+        aesNext.aesFirstSymptomOnsetDate =
+          "Date cannot be in the future.";
+      }
     }
 
     if (aesMeetsCaseDefinition) {
@@ -613,7 +770,8 @@ setAesErrors((aesPrevious) => {
       }
 
       if (!aesForm.aesMentalStatus) {
-        aesNext.aesMentalStatus = "Select mental status.";
+        aesNext.aesMentalStatus =
+          "Select mental status.";
       }
 
       if (!aesForm.aesNeurologicMotorDetails) {
@@ -622,40 +780,56 @@ setAesErrors((aesPrevious) => {
       }
 
       if (aesForm.aesJeVaccineHistoryAvailable) {
-      if (aesForm.aesDoseByCard === "") {
-        aesNext.aesDoseByCard =
-          "Dose by Card is required.";
+        if (aesForm.aesDoseByCard === "") {
+          aesNext.aesDoseByCard =
+            "Dose by Card is required.";
+        }
+
+        if (aesForm.aesDoseByHistory === "") {
+          aesNext.aesDoseByHistory =
+            "Dose by History is required.";
+        }
+
+        if (
+          aesForm.aesDoseByCard === "0" &&
+          aesForm.aesDoseByHistory === "0"
+        ) {
+          aesNext.aesDoseByCard =
+            "Both dose fields cannot be 0.";
+          aesNext.aesDoseByHistory =
+            "Both dose fields cannot be 0.";
+        }
+
+        if (!aesForm.aesDateOfLastDose) {
+          aesNext.aesDateOfLastDose =
+            "Date of last dose is required.";
+        } else if (
+          aesForm.aesDateOfLastDose > aesMaxDate
+        ) {
+          aesNext.aesDateOfLastDose =
+            "Date cannot be in the future.";
+        }
       }
 
-      if (aesForm.aesDoseByHistory === "") {
-        aesNext.aesDoseByHistory =
-          "Dose by History is required.";
-      }
-
-      if (
-        aesForm.aesDoseByCard === "0" &&
-        aesForm.aesDoseByHistory === "0"
-      ) {
-        aesNext.aesDoseByCard =
-          "Both dose fields cannot be 0.";
-        aesNext.aesDoseByHistory =
-          "Both dose fields cannot be 0.";
-      }
-
-      if (!aesForm.aesDateOfLastDose) {
-        aesNext.aesDateOfLastDose =
-          "Date of last dose is required.";
-      }
-    }
       if (aesForm.aesTravelOutsideAreaLast14Days) {
         if (!aesForm.aesTravelPeriodStart) {
           aesNext.aesTravelPeriodStart =
             "Period start is required.";
+        } else if (
+          aesForm.aesTravelPeriodStart > aesMaxDate
+        ) {
+          aesNext.aesTravelPeriodStart =
+            "Date cannot be in the future.";
         }
 
         if (!aesForm.aesTravelPeriodEnd) {
           aesNext.aesTravelPeriodEnd =
             "Period end is required.";
+        } else if (
+          aesForm.aesTravelPeriodEnd > aesMaxDate
+        ) {
+          aesNext.aesTravelPeriodEnd =
+            "Date cannot be in the future.";
         }
 
         if (
@@ -697,7 +871,8 @@ setAesErrors((aesPrevious) => {
     return {
       diseaseCode: "AES",
       populationGroup: aesForm.aesPopulationGroup,
-      meetsAesScreeningCondition: aesMeetsCaseDefinition,
+      meetsAesScreeningCondition:
+        aesMeetsCaseDefinition,
 
       caseDefinition: {
         acuteOnsetFever: aesToBoolean(
@@ -718,9 +893,14 @@ setAesErrors((aesPrevious) => {
       signsAndSymptoms: aesMeetsCaseDefinition
         ? {
             fever: aesToBoolean(aesForm.aesFever),
-            seizures: aesToBoolean(aesForm.aesSeizures),
-            headaches: aesToBoolean(aesForm.aesHeadaches),
-            mentalStatus: aesForm.aesMentalStatus,
+            seizures: aesToBoolean(
+              aesForm.aesSeizures,
+            ),
+            headaches: aesToBoolean(
+              aesForm.aesHeadaches,
+            ),
+            mentalStatus:
+              aesForm.aesMentalStatus,
             neurologicMotorDetails:
               aesForm.aesNeurologicMotorDetails,
           }
@@ -730,16 +910,17 @@ setAesErrors((aesPrevious) => {
         ? {
             available:
               aesForm.aesJeVaccineHistoryAvailable,
-            antigen: aesForm.aesJeVaccineHistoryAvailable
-              ? "JE"
-              : null,
+            antigen:
+              aesForm.aesJeVaccineHistoryAvailable
+                ? "JE"
+                : null,
             doseByCard:
               aesForm.aesJeVaccineHistoryAvailable
-                ? aesForm.aesDoseByCard || null
+                ? aesForm.aesDoseByCard
                 : null,
             doseByHistory:
               aesForm.aesJeVaccineHistoryAvailable
-                ? aesForm.aesDoseByHistory || null
+                ? aesForm.aesDoseByHistory
                 : null,
             siaDoses:
               aesForm.aesJeVaccineHistoryAvailable
@@ -747,7 +928,7 @@ setAesErrors((aesPrevious) => {
                 : null,
             dateOfLastDose:
               aesForm.aesJeVaccineHistoryAvailable
-                ? aesForm.aesDateOfLastDose || null
+                ? aesForm.aesDateOfLastDose
                 : null,
           }
         : null,
@@ -786,7 +967,8 @@ setAesErrors((aesPrevious) => {
                     aesForm.aesTravelVillageTown ||
                     null,
                   countryIfOutsideBangladesh:
-                    aesForm.aesTravelCountry || null,
+                    aesForm.aesTravelCountry ||
+                    null,
                 }
               : {}),
           }
@@ -794,7 +976,9 @@ setAesErrors((aesPrevious) => {
     };
   }
 
-  function aesSubmit(aesEvent: FormEvent<HTMLFormElement>) {
+  function aesSubmit(
+    aesEvent: FormEvent<HTMLFormElement>,
+  ) {
     aesEvent.preventDefault();
 
     const aesNextErrors = aesValidate();
@@ -805,7 +989,7 @@ setAesErrors((aesPrevious) => {
       return;
     }
 
-    // Frontend preview only
+    // Frontend preview only. Nothing is sent to a backend.
     setAesPayload(aesCreatePayload());
   }
 
@@ -820,11 +1004,19 @@ setAesErrors((aesPrevious) => {
       sx={{
         minHeight: "100vh",
         backgroundColor: "#f2f5f9",
-        padding: { xs: "12px 0 40px", md: "20px 0 60px" },
+        padding: {
+          xs: "12px 0 40px",
+          md: "20px 0 60px",
+        },
+        fontFamily: "Arial, sans-serif",
       }}
     >
       <Container maxWidth="xl">
-        <Box component="form" noValidate onSubmit={aesSubmit}>
+        <Box
+          component="form"
+          noValidate
+          onSubmit={aesSubmit}
+        >
           {/* Disease Selection */}
           <Paper elevation={0} sx={aesPanelSx}>
             <Box
@@ -857,10 +1049,13 @@ setAesErrors((aesPrevious) => {
                 </Typography>
 
                 <Typography
-                  sx={{ color: "#fff", fontSize: "12px" }}
+                  sx={{
+                    color: "#fff",
+                    fontSize: "12px",
+                  }}
                 >
-                  Select the specific surveillance target for
-                  clinical branching.
+                  Select the specific surveillance target
+                  for clinical branching.
                 </Typography>
               </Box>
 
@@ -868,8 +1063,10 @@ setAesErrors((aesPrevious) => {
                 select
                 fullWidth
                 value="AES"
-                inputProps={{
-                  "aria-label": "Selected disease",
+                slotProps={{
+                  select: {
+                    "aria-label": "Selected disease",
+                    },
                 }}
                 sx={{
                   ...aesFieldSx,
@@ -889,13 +1086,19 @@ setAesErrors((aesPrevious) => {
             </Box>
 
             <Box sx={{ mb: 2 }}>
-              <AesLabel aesText="EPID CODE (auto-generated)" />
+              <AesLabel
+                aesText="EPID CODE (auto-generated)"
+              />
 
               <TextField
                 fullWidth
                 disabled
                 value="Generated by the existing system"
-                inputProps={{ "aria-label": "EPID code" }}
+                slotProps={{
+                  htmlInput: {
+                    "aria-label": "EPID code",
+                  },
+                }}
                 sx={aesFieldSx}
               />
             </Box>
@@ -905,7 +1108,11 @@ setAesErrors((aesPrevious) => {
               aesRequired
             />
 
-            <Box sx={{ display: "flex", flexWrap: "wrap" }}>
+            <Box
+              role="group"
+              aria-label="Population Group"
+              sx={{ display: "flex", flexWrap: "wrap" }}
+            >
               <FormControlLabel
                 label="Tribal"
                 control={
@@ -917,10 +1124,7 @@ setAesErrors((aesPrevious) => {
                     onChange={() =>
                       aesUpdate(
                         "aesPopulationGroup",
-                        aesForm.aesPopulationGroup ===
-                          "tribal"
-                          ? ""
-                          : "tribal",
+                        "tribal",
                       )
                     }
                   />
@@ -938,10 +1142,7 @@ setAesErrors((aesPrevious) => {
                     onChange={() =>
                       aesUpdate(
                         "aesPopulationGroup",
-                        aesForm.aesPopulationGroup ===
-                          "non_tribal"
-                          ? ""
-                          : "non_tribal",
+                        "non_tribal",
                       )
                     }
                   />
@@ -952,7 +1153,10 @@ setAesErrors((aesPrevious) => {
             {aesErrors.aesPopulationGroup && (
               <Typography
                 role="alert"
-                sx={{ color: aesRed, fontSize: "11px" }}
+                sx={{
+                  color: aesRed,
+                  fontSize: "11px",
+                }}
               >
                 {aesErrors.aesPopulationGroup}
               </Typography>
@@ -990,7 +1194,9 @@ setAesErrors((aesPrevious) => {
               <Box sx={aesCardSx}>
                 <AesQuestionRow
                   aesText="1. Acute onset of fever"
-                  aesValue={aesForm.aesAcuteOnsetFever}
+                  aesValue={
+                    aesForm.aesAcuteOnsetFever
+                  }
                   aesError={
                     aesErrors.aesAcuteOnsetFever
                   }
@@ -1020,7 +1226,9 @@ setAesErrors((aesPrevious) => {
 
                 <AesQuestionRow
                   aesText="3. New onset seizures (excluding simple febrile seizures)"
-                  aesValue={aesForm.aesNewOnsetSeizures}
+                  aesValue={
+                    aesForm.aesNewOnsetSeizures
+                  }
                   aesError={
                     aesErrors.aesNewOnsetSeizures
                   }
@@ -1068,7 +1276,9 @@ setAesErrors((aesPrevious) => {
                       aesEvent.target.value,
                     )
                   }
-                  inputProps={{ max: aesMaxDate }}
+                  slotProps={{
+                  htmlInput: { max: aesMaxDate },
+                  }}
                   sx={aesFieldSx}
                 />
               </Box>
@@ -1082,17 +1292,22 @@ setAesErrors((aesPrevious) => {
                   mt: 1.5,
                 }}
               >
-                The remaining sections open when acute onset of fever
-                is Yes and at least one of altered mental status or
-                new onset seizures is Yes. Answer all three questions.
+                Answer all three questions. The remaining
+                sections open when acute onset of fever is
+                Yes and at least one of questions 2 or 3
+                is Yes.
               </Typography>
             )}
 
-            {aesDefinitionComplete && !aesMeetsCaseDefinition && (
-              <Alert severity="info" sx={{ mt: 1.5 }}>
-                The AES screening condition is not met.
-              </Alert>
-            )}
+            {aesDefinitionComplete &&
+              !aesMeetsCaseDefinition && (
+                <Alert
+                  severity="info"
+                  sx={{ mt: 1.5 }}
+                >
+                  The AES screening condition is not met.
+                </Alert>
+              )}
           </Paper>
 
           <Collapse
@@ -1127,7 +1342,10 @@ setAesErrors((aesPrevious) => {
                     aesValue={aesForm.aesFever}
                     aesError={aesErrors.aesFever}
                     aesOnChange={(aesAnswer) =>
-                      aesUpdate("aesFever", aesAnswer)
+                      aesUpdate(
+                        "aesFever",
+                        aesAnswer,
+                      )
                     }
                   />
 
@@ -1158,119 +1376,50 @@ setAesErrors((aesPrevious) => {
                 </Box>
 
                 <Box sx={aesCardSx}>
-                  <AesLabel
-                    aesText="Mental Status"
+                  <AesSelectField
+                    aesId="aes-mental-status"
+                    aesLabel="Mental Status"
                     aesRequired
-                    aesHtmlFor="aes-mental-status"
-                  />
-
-                  <TextField
-                    id="aes-mental-status"
-                    select
-                    fullWidth
-                    value={aesForm.aesMentalStatus}
-                    error={Boolean(
-                      aesErrors.aesMentalStatus,
-                    )}
-                    helperText={
+                    aesValue={
+                      aesForm.aesMentalStatus
+                    }
+                    aesOptions={
+                      aesMentalStatusOptions
+                    }
+                    aesPlaceholder="Pick MOST appropriate one"
+                    aesError={
                       aesErrors.aesMentalStatus
                     }
-                    onChange={(aesEvent) =>
+                    aesOnChange={(aesValue) =>
                       aesUpdate(
                         "aesMentalStatus",
-                        aesEvent.target.value,
+                        aesValue,
                       )
                     }
-                    SelectProps={{
-                      displayEmpty: true,
-                      MenuProps: {
-                        PaperProps: {
-                          sx: {
-                            "& .MuiMenuItem-root": {
-                              fontSize: "13px",
-                              minHeight: 36,
-                            },
-                          },
-                        },
-                      },
-                    }}
-                    sx={aesFieldSx}
-                  >
-                    <MenuItem value="" disabled>
-                      Pick MOST appropriate one
-                    </MenuItem>
-
-                    {aesMentalStatusOptions.map(
-                      (aesOption) => (
-                        <MenuItem
-                          key={aesOption}
-                          value={aesOption}
-                        >
-                          {aesOption}
-                        </MenuItem>
-                      ),
-                    )}
-                  </TextField>
+                  />
                 </Box>
 
                 <Box sx={aesCardSx}>
-                  <AesLabel
-                    aesText="Neurologic Details (Motor)"
+                  <AesSelectField
+                    aesId="aes-motor-details"
+                    aesLabel="Neurologic Details (Motor)"
                     aesRequired
-                    aesHtmlFor="aes-motor-details"
-                  />
-
-                  <TextField
-                    id="aes-motor-details"
-                    select
-                    fullWidth
-                    value={
+                    aesValue={
                       aesForm.aesNeurologicMotorDetails
                     }
-                    error={Boolean(
-                      aesErrors
-                        .aesNeurologicMotorDetails,
-                    )}
-                    helperText={
+                    aesOptions={aesMotorOptions}
+                    aesPlaceholder="Pick MOST appropriate one"
+                    aesError={
                       aesErrors
                         .aesNeurologicMotorDetails
                     }
-                    onChange={(aesEvent) =>
+                    aesOnChange={(aesValue) =>
                       aesUpdate(
                         "aesNeurologicMotorDetails",
-                        aesEvent.target.value,
+                        aesValue,
                       )
                     }
-                    SelectProps={{
-                      displayEmpty: true,
-                      MenuProps: {
-                        PaperProps: {
-                          sx: {
-                            "& .MuiMenuItem-root": {
-                              fontSize: "13px",
-                              minHeight: 36,
-                            },
-                          },
-                        },
-                      },
-                    }}
-                    sx={aesFieldSx}
-                  >
-                    <MenuItem value="" disabled>
-                      Pick MOST appropriate one
-                    </MenuItem>
-
-                    {aesMotorOptions.map(
-                      (aesOption) => (
-                        <MenuItem
-                          key={aesOption}
-                          value={aesOption}
-                        >
-                          {aesOption}
-                        </MenuItem>
-                      ),
-                    )}
-                  </TextField>
+                  />
                 </Box>
               </Box>
             </Paper>
@@ -1287,7 +1436,9 @@ setAesErrors((aesPrevious) => {
                       aesForm
                         .aesJeVaccineHistoryAvailable
                     }
-                    aesOnChange={aesSetVaccination}
+                    aesOnChange={
+                      aesSetVaccination
+                    }
                   />
                 }
               />
@@ -1314,188 +1465,112 @@ setAesErrors((aesPrevious) => {
                         display: "grid",
                         gridTemplateColumns:
                           "0.7fr 1fr 1fr 1fr 1.2fr",
-                        gap: 1.5,
-                        padding: "8px 10px",
-                        borderTop:
-                          `1px solid ${aesBorder}`,
-                        borderBottom:
-                          `1px solid ${aesBorder}`,
-                      }}
-                    >
-                      {[
-                        "ANTIGEN",
-                        "DOSE BY CARD",
-                        "DOSE BY HISTORY",
-                        "SIA DOSES",
-                        "DATE OF LAST DOSE *",
-                      ].map((aesHeading) => (
-                        <Typography
-                          key={aesHeading}
-                          sx={{
-                            color: aesNavy,
-                            fontSize: "11px",
-                            fontWeight: 600,
-                          }}
-                        >
-                          {aesHeading}
-                        </Typography>
-                      ))}
-                    </Box>
-
-                    <Box
-                      sx={{
-                        display: "grid",
-                        gridTemplateColumns:
-                          "0.7fr 1fr 1fr 1fr 1.2fr",
                         alignItems: "start",
                         gap: 1.5,
-                        padding: "12px 10px 4px",
+                        padding: "8px 10px 4px",
+                        borderTop:
+                          `1px solid ${aesBorder}`,
                       }}
                     >
-                      <TextField
-                        fullWidth
-                        disabled
-                        value="JE"
-                        inputProps={{
-                          "aria-label": "Antigen",
-                        }}
-                        sx={aesFieldSx}
-                      />
+                      <Box>
+                        <AesLabel
+                          aesText="ANTIGEN"
+                        />
 
-                      <TextField
-                        select
-                        fullWidth
-                        value={
+                        <Box
+                          role="textbox"
+                          aria-label="Antigen"
+                          aria-readonly="true"
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            height: 40,
+                            padding: "0 12px",
+                            border:
+                              `1px solid ${aesBorder}`,
+                            borderRadius: "2px",
+                            color: aesNavy,
+                            backgroundColor: "#fff",
+                            fontSize: "13px",
+                            fontWeight: 700,
+                          }}
+                        >
+                          JE
+                        </Box>
+                      </Box>
+
+                      <AesSelectField
+                        aesId="aes-dose-card"
+                        aesLabel="DOSE BY CARD"
+                        aesValue={
                           aesForm.aesDoseByCard
                         }
-                        error={Boolean(
-                          aesErrors.aesDoseByCard,
-                        )}
-                        helperText={
+                        aesOptions={aesDoseOptions}
+                        aesPlaceholder="Select dose"
+                        aesError={
                           aesErrors.aesDoseByCard
                         }
-                        onChange={(aesEvent) =>
+                        aesOnChange={(aesValue) =>
                           aesUpdate(
                             "aesDoseByCard",
-                            aesEvent.target.value,
+                            aesValue,
                           )
                         }
-                        SelectProps={{
-                          displayEmpty: true,
-                        }}
-                        inputProps={{
-                          "aria-label":
-                            "Dose by card",
-                        }}
-                        sx={aesFieldSx}
-                      >
-                        <MenuItem value="">
-                          Select dose
-                        </MenuItem>
+                      />
 
-                        {aesRegularDoses.map(
-                          (aesDose) => (
-                            <MenuItem
-                              key={aesDose}
-                              value={aesDose}
-                            >
-                              {aesDose}
-                            </MenuItem>
-                          ),
-                        )}
-                      </TextField>
-
-<TextField
-  select
-  fullWidth
-  value={aesForm.aesDoseByHistory}
-  error={Boolean(aesErrors.aesDoseByHistory)}
-  helperText={aesErrors.aesDoseByHistory}
-  onChange={(aesEvent) =>
-    aesUpdate(
-      "aesDoseByHistory",
-      aesEvent.target.value,
-    )
-  }
-  SelectProps={{
-    displayEmpty: true,
-  }}
-  inputProps={{
-    "aria-label": "Dose by history",
-  }}
-  sx={aesFieldSx}
->
-  <MenuItem value="">Select dose</MenuItem>
-
-  {aesRegularDoses.map((aesDose) => (
-    <MenuItem key={aesDose} value={aesDose}>
-      {aesDose}
-    </MenuItem>
-  ))}
-</TextField>
-
-                      <TextField
-                        select
-                        fullWidth
-                        value={
-                          aesForm.aesSiaDoses
+                      <AesSelectField
+                        aesId="aes-dose-history"
+                        aesLabel="DOSE BY HISTORY"
+                        aesValue={
+                          aesForm.aesDoseByHistory
                         }
-                        onChange={(aesEvent) =>
+                        aesOptions={aesDoseOptions}
+                        aesPlaceholder="Select dose"
+                        aesError={
+                          aesErrors.aesDoseByHistory
+                        }
+                        aesOnChange={(aesValue) =>
+                          aesUpdate(
+                            "aesDoseByHistory",
+                            aesValue,
+                          )
+                        }
+                      />
+
+                      <AesSelectField
+                        aesId="aes-sia-doses"
+                        aesLabel="SIA DOSES"
+                        aesValue={aesForm.aesSiaDoses}
+                        aesOptions={
+                          aesSiaDoseOptions
+                        }
+                        aesPlaceholder="Select dose"
+                        aesOnChange={(aesValue) =>
                           aesUpdate(
                             "aesSiaDoses",
-                            aesEvent.target.value,
+                            aesValue,
                           )
                         }
-                        SelectProps={{
-                          displayEmpty: true,
-                        }}
-                        inputProps={{
-                          "aria-label": "SIA doses",
-                        }}
-                        sx={aesFieldSx}
-                      >
-                        <MenuItem value="">
-                          Select dose
-                        </MenuItem>
+                      />
 
-                        {aesSiaDoses.map(
-                          (aesDose) => (
-                            <MenuItem
-                              key={aesDose}
-                              value={aesDose}
-                            >
-                              {aesDose}
-                            </MenuItem>
-                          ),
-                        )}
-                      </TextField>
-
-                      <TextField
-                        fullWidth
-                        type="date"
-                        value={
+                      <AesTextField
+                        aesId="aes-last-dose-date"
+                        aesLabel="DATE OF LAST DOSE"
+                        aesRequired
+                        aesType="date"
+                        aesValue={
                           aesForm.aesDateOfLastDose
                         }
-                        error={Boolean(
-                          aesErrors
-                            .aesDateOfLastDose,
-                        )}
-                        helperText={
-                          aesErrors
-                            .aesDateOfLastDose
+                        aesMax={aesMaxDate}
+                        aesError={
+                          aesErrors.aesDateOfLastDose
                         }
-                        onChange={(aesEvent) =>
+                        aesOnChange={(aesValue) =>
                           aesUpdate(
                             "aesDateOfLastDose",
-                            aesEvent.target.value,
+                            aesValue,
                           )
                         }
-                        inputProps={{
-                          max: aesMaxDate,
-                          "aria-label":
-                            "Date of last dose",
-                        }}
-                        sx={aesFieldSx}
                       />
                     </Box>
                   </Box>
@@ -1541,112 +1616,68 @@ setAesErrors((aesPrevious) => {
                     gap: 1.5,
                   }}
                 >
-                  <Box>
-                    <AesLabel
-                      aesText="PERIOD START"
-                      aesRequired
-                      aesHtmlFor="aes-travel-start"
-                    />
+                  <AesTextField
+                    aesId="aes-travel-start"
+                    aesLabel="PERIOD START"
+                    aesRequired
+                    aesType="date"
+                    aesValue={
+                      aesForm.aesTravelPeriodStart
+                    }
+                    aesMax={aesMaxDate}
+                    aesError={
+                      aesErrors.aesTravelPeriodStart
+                    }
+                    aesOnChange={(aesValue) =>
+                      aesUpdate(
+                        "aesTravelPeriodStart",
+                        aesValue,
+                      )
+                    }
+                  />
 
-                    <TextField
-                      id="aes-travel-start"
-                      fullWidth
-                      type="date"
-                      value={
-                        aesForm.aesTravelPeriodStart
-                      }
-                      error={Boolean(
-                        aesErrors
-                          .aesTravelPeriodStart,
-                      )}
-                      helperText={
-                        aesErrors
-                          .aesTravelPeriodStart
-                      }
-                      onChange={(aesEvent) =>
-                        aesUpdate(
-                          "aesTravelPeriodStart",
-                          aesEvent.target.value,
-                        )
-                      }
-                      inputProps={{
-                        max: aesMaxDate,
-                      }}
-                      sx={aesFieldSx}
-                    />
-                  </Box>
+                  <AesTextField
+                    aesId="aes-travel-end"
+                    aesLabel="PERIOD END"
+                    aesRequired
+                    aesType="date"
+                    aesValue={
+                      aesForm.aesTravelPeriodEnd
+                    }
+                    aesMin={
+                      aesForm.aesTravelPeriodStart ||
+                      undefined
+                    }
+                    aesMax={aesMaxDate}
+                    aesError={
+                      aesErrors.aesTravelPeriodEnd
+                    }
+                    aesOnChange={(aesValue) =>
+                      aesUpdate(
+                        "aesTravelPeriodEnd",
+                        aesValue,
+                      )
+                    }
+                  />
 
-                  <Box>
-                    <AesLabel
-                      aesText="PERIOD END"
-                      aesRequired
-                      aesHtmlFor="aes-travel-end"
-                    />
-
-                    <TextField
-                      id="aes-travel-end"
-                      fullWidth
-                      type="date"
-                      value={
-                        aesForm.aesTravelPeriodEnd
-                      }
-                      error={Boolean(
-                        aesErrors
-                          .aesTravelPeriodEnd,
-                      )}
-                      helperText={
-                        aesErrors
-                          .aesTravelPeriodEnd
-                      }
-                      onChange={(aesEvent) =>
-                        aesUpdate(
-                          "aesTravelPeriodEnd",
-                          aesEvent.target.value,
-                        )
-                      }
-                      inputProps={{
-                        min:
-                          aesForm
-                            .aesTravelPeriodStart ||
-                          undefined,
-                        max: aesMaxDate,
-                      }}
-                      sx={aesFieldSx}
-                    />
-                  </Box>
-
-                  <Box>
-                    <AesLabel
-                      aesText="PLACE DETAILS"
-                      aesRequired
-                      aesHtmlFor="aes-travel-place"
-                    />
-
-                    <TextField
-                      id="aes-travel-place"
-                      fullWidth
-                      placeholder="Specific hotel or residence"
-                      value={
-                        aesForm
-                          .aesTravelPlaceDetails
-                      }
-                      error={Boolean(
-                        aesErrors
-                          .aesTravelPlaceDetails,
-                      )}
-                      helperText={
-                        aesErrors
-                          .aesTravelPlaceDetails
-                      }
-                      onChange={(aesEvent) =>
-                        aesUpdate(
-                          "aesTravelPlaceDetails",
-                          aesEvent.target.value,
-                        )
-                      }
-                      sx={aesFieldSx}
-                    />
-                  </Box>
+                  <AesTextField
+                    aesId="aes-travel-place"
+                    aesLabel="PLACE DETAILS"
+                    aesRequired
+                    aesPlaceholder="Specific hotel or residence"
+                    aesValue={
+                      aesForm.aesTravelPlaceDetails
+                    }
+                    aesError={
+                      aesErrors.aesTravelPlaceDetails
+                    }
+                    aesOnChange={(aesValue) =>
+                      aesUpdate(
+                        "aesTravelPlaceDetails",
+                        aesValue,
+                      )
+                    }
+                  />
                 </Box>
 
                 <Typography
@@ -1662,259 +1693,153 @@ setAesErrors((aesPrevious) => {
                 </Typography>
 
                 <Box sx={aesThreeColumnsSx}>
-                  <Box>
-                    <AesLabel
-                      aesText="DIVISION"
-                      aesRequired
-                      aesHtmlFor="aes-division"
-                    />
+                  <AesSelectField
+                    aesId="aes-division"
+                    aesLabel="DIVISION"
+                    aesRequired
+                    aesValue={
+                      aesForm.aesTravelDivision
+                    }
+                    aesOptions={aesDivisions}
+                    aesPlaceholder="Select Division"
+                    aesError={
+                      aesErrors.aesTravelDivision
+                    }
+                    aesOnChange={(aesValue) =>
+                      aesUpdate(
+                        "aesTravelDivision",
+                        aesValue,
+                      )
+                    }
+                  />
 
-                    <TextField
-                      id="aes-division"
-                      select
-                      fullWidth
-                      value={
-                        aesForm.aesTravelDivision
-                      }
-                      error={Boolean(
-                        aesErrors
-                          .aesTravelDivision,
-                      )}
-                      helperText={
-                        aesErrors
-                          .aesTravelDivision
-                      }
-                      onChange={(aesEvent) =>
-                        aesUpdate(
-                          "aesTravelDivision",
-                          aesEvent.target.value,
-                        )
-                      }
-                      SelectProps={{
-                        displayEmpty: true,
-                      }}
-                      sx={aesFieldSx}
-                    >
-                      <MenuItem value="">
-                        Select Division
-                      </MenuItem>
+                  <AesTextField
+                    aesId="aes-district"
+                    aesLabel="DISTRICT / CITY CORPORATION"
+                    aesRequired
+                    aesPlaceholder="District / City Corporation"
+                    aesValue={
+                      aesForm.aesTravelDistrict
+                    }
+                    aesError={
+                      aesErrors.aesTravelDistrict
+                    }
+                    aesOnChange={(aesValue) =>
+                      aesUpdate(
+                        "aesTravelDistrict",
+                        aesValue,
+                      )
+                    }
+                  />
 
-                      {aesDivisions.map(
-                        (aesDivision) => (
-                          <MenuItem
-                            key={aesDivision}
-                            value={aesDivision}
-                          >
-                            {aesDivision}
-                          </MenuItem>
-                        ),
-                      )}
-                    </TextField>
-                  </Box>
+                  <AesTextField
+                    aesId="aes-upazila"
+                    aesLabel="UPAZILA / THANA"
+                    aesRequired
+                    aesPlaceholder="Upazila / Thana"
+                    aesValue={
+                      aesForm.aesTravelUpazila
+                    }
+                    aesError={
+                      aesErrors.aesTravelUpazila
+                    }
+                    aesOnChange={(aesValue) =>
+                      aesUpdate(
+                        "aesTravelUpazila",
+                        aesValue,
+                      )
+                    }
+                  />
 
-                  <Box>
-                    <AesLabel
-                      aesText="DISTRICT / CITY CORPORATION"
-                      aesRequired
-                      aesHtmlFor="aes-district"
-                    />
+                  <AesTextField
+                    aesId="aes-municipality"
+                    aesLabel="MUNICIPALITY / ZONE / UNION GROUP"
+                    aesPlaceholder="Municipality / Zone / Union Group"
+                    aesValue={
+                      aesForm.aesTravelMunicipality
+                    }
+                    aesOnChange={(aesValue) =>
+                      aesUpdate(
+                        "aesTravelMunicipality",
+                        aesValue,
+                      )
+                    }
+                  />
 
-                    <TextField
-                      id="aes-district"
-                      fullWidth
-                      placeholder="District / City Corporation"
-                      value={
-                        aesForm.aesTravelDistrict
-                      }
-                      error={Boolean(
-                        aesErrors
-                          .aesTravelDistrict,
-                      )}
-                      helperText={
-                        aesErrors
-                          .aesTravelDistrict
-                      }
-                      onChange={(aesEvent) =>
-                        aesUpdate(
-                          "aesTravelDistrict",
-                          aesEvent.target.value,
-                        )
-                      }
-                      sx={aesFieldSx}
-                    />
-                  </Box>
+                  <AesTextField
+                    aesId="aes-union"
+                    aesLabel="UNION / URBAN WARD"
+                    aesPlaceholder="Union / Urban Ward"
+                    aesValue={
+                      aesForm.aesTravelUnionWard
+                    }
+                    aesOnChange={(aesValue) =>
+                      aesUpdate(
+                        "aesTravelUnionWard",
+                        aesValue,
+                      )
+                    }
+                  />
 
-                  <Box>
-                    <AesLabel
-                      aesText="UPAZILA / THANA"
-                      aesRequired
-                      aesHtmlFor="aes-upazila"
-                    />
+                  <AesTextField
+                    aesId="aes-new-ward"
+                    aesLabel="NEW WARD / OLD WARD"
+                    aesPlaceholder="New Ward / Old Ward"
+                    aesValue={
+                      aesForm.aesTravelNewWard
+                    }
+                    aesOnChange={(aesValue) =>
+                      aesUpdate(
+                        "aesTravelNewWard",
+                        aesValue,
+                      )
+                    }
+                  />
 
-                    <TextField
-                      id="aes-upazila"
-                      fullWidth
-                      placeholder="Upazila / Thana"
-                      value={
-                        aesForm.aesTravelUpazila
-                      }
-                      error={Boolean(
-                        aesErrors
-                          .aesTravelUpazila,
-                      )}
-                      helperText={
-                        aesErrors
-                          .aesTravelUpazila
-                      }
-                      onChange={(aesEvent) =>
-                        aesUpdate(
-                          "aesTravelUpazila",
-                          aesEvent.target.value,
-                        )
-                      }
-                      sx={aesFieldSx}
-                    />
-                  </Box>
+                  <AesTextField
+                    aesId="aes-house-street"
+                    aesLabel="HOUSE / STREET"
+                    aesPlaceholder="House / Street"
+                    aesValue={
+                      aesForm.aesTravelHouseStreet
+                    }
+                    aesOnChange={(aesValue) =>
+                      aesUpdate(
+                        "aesTravelHouseStreet",
+                        aesValue,
+                      )
+                    }
+                  />
 
-                  <Box>
-                    <AesLabel
-                      aesText="MUNICIPALITY / ZONE / UNION GROUP"
-                      aesHtmlFor="aes-municipality"
-                    />
+                  <AesTextField
+                    aesId="aes-village"
+                    aesLabel="VILLAGE / TOWN"
+                    aesPlaceholder="Village / Town"
+                    aesValue={
+                      aesForm.aesTravelVillageTown
+                    }
+                    aesOnChange={(aesValue) =>
+                      aesUpdate(
+                        "aesTravelVillageTown",
+                        aesValue,
+                      )
+                    }
+                  />
 
-                    <TextField
-                      id="aes-municipality"
-                      fullWidth
-                      placeholder="Optional"
-                      value={
-                        aesForm
-                          .aesTravelMunicipality
-                      }
-                      onChange={(aesEvent) =>
-                        aesUpdate(
-                          "aesTravelMunicipality",
-                          aesEvent.target.value,
-                        )
-                      }
-                      sx={aesFieldSx}
-                    />
-                  </Box>
-
-                  <Box>
-                    <AesLabel
-                      aesText="UNION / URBAN WARD"
-                      aesHtmlFor="aes-union"
-                    />
-
-                    <TextField
-                      id="aes-union"
-                      fullWidth
-                      placeholder="Optional"
-                      value={
-                        aesForm.aesTravelUnionWard
-                      }
-                      onChange={(aesEvent) =>
-                        aesUpdate(
-                          "aesTravelUnionWard",
-                          aesEvent.target.value,
-                        )
-                      }
-                      sx={aesFieldSx}
-                    />
-                  </Box>
-
-                  <Box>
-                    <AesLabel
-                      aesText="NEW WARD / OLD WARD"
-                      aesHtmlFor="aes-new-ward"
-                    />
-
-                    <TextField
-                      id="aes-new-ward"
-                      fullWidth
-                      placeholder="Optional"
-                      value={
-                        aesForm.aesTravelNewWard
-                      }
-                      onChange={(aesEvent) =>
-                        aesUpdate(
-                          "aesTravelNewWard",
-                          aesEvent.target.value,
-                        )
-                      }
-                      sx={aesFieldSx}
-                    />
-                  </Box>
-
-                  <Box>
-                    <AesLabel
-                      aesText="HOUSE / STREET"
-                      aesHtmlFor="aes-house-street"
-                    />
-
-                    <TextField
-                      id="aes-house-street"
-                      fullWidth
-                      placeholder="House / Street"
-                      value={
-                        aesForm
-                          .aesTravelHouseStreet
-                      }
-                      onChange={(aesEvent) =>
-                        aesUpdate(
-                          "aesTravelHouseStreet",
-                          aesEvent.target.value,
-                        )
-                      }
-                      sx={aesFieldSx}
-                    />
-                  </Box>
-
-                  <Box>
-                    <AesLabel
-                      aesText="VILLAGE / TOWN"
-                      aesHtmlFor="aes-village"
-                    />
-
-                    <TextField
-                      id="aes-village"
-                      fullWidth
-                      placeholder="Village / Town"
-                      value={
-                        aesForm.aesTravelVillageTown
-                      }
-                      onChange={(aesEvent) =>
-                        aesUpdate(
-                          "aesTravelVillageTown",
-                          aesEvent.target.value,
-                        )
-                      }
-                      sx={aesFieldSx}
-                    />
-                  </Box>
-
-                  <Box>
-                    <AesLabel
-                      aesText="COUNTRY (IF OTHER THAN BANGLADESH)"
-                      aesHtmlFor="aes-country"
-                    />
-
-                    <TextField
-                      id="aes-country"
-                      fullWidth
-                      placeholder="Country"
-                      value={
-                        aesForm.aesTravelCountry
-                      }
-                      onChange={(aesEvent) =>
-                        aesUpdate(
-                          "aesTravelCountry",
-                          aesEvent.target.value,
-                        )
-                      }
-                      sx={aesFieldSx}
-                    />
-                  </Box>
+                  <AesTextField
+                    aesId="aes-country"
+                    aesLabel="COUNTRY (IF OTHER THAN BANGLADESH)"
+                    aesPlaceholder="Country (if other than Bangladesh)"
+                    aesValue={
+                      aesForm.aesTravelCountry
+                    }
+                    aesOnChange={(aesValue) =>
+                      aesUpdate(
+                        "aesTravelCountry",
+                        aesValue,
+                      )
+                    }
+                  />
                 </Box>
               </Collapse>
             </Paper>
@@ -1963,10 +1888,13 @@ setAesErrors((aesPrevious) => {
         </Box>
 
         {aesPayload && (
-          <Paper elevation={0} sx={{ ...aesPanelSx, mt: 2 }}>
+          <Paper
+            elevation={0}
+            sx={{ ...aesPanelSx, mt: 2 }}
+          >
             <Alert severity="success" sx={{ mb: 2 }}>
-              Frontend validation passed. No data was sent
-              to a backend.
+              Frontend validation passed. No data was
+              sent to a backend.
             </Alert>
 
             <Typography
