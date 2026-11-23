@@ -68,7 +68,6 @@ def upgrade() -> None:
             sa.Column(name, column_type, nullable=True),
         )
 
-    # Fill the new columns for records that were saved before this migration.
     assignments = []
 
     for name, _, sql_type, json_path in AES_COLUMNS:
@@ -103,6 +102,5 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    # Do not run a downgrade casually: it removes these columns.
     for name, _, _, _ in reversed(AES_COLUMNS):
         op.drop_column("aes_investigations", name)
